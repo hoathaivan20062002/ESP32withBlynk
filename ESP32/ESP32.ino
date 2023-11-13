@@ -1,9 +1,9 @@
-/* Fill-in your Template ID (only if using Blynk.Cloud) */
+/* Điền vào Template ID của bạn ( Blynk.Cloud) */
 #define BLYNK_TEMPLATE_ID "TMPL6Hvve0kKA"
 #define BLYNK_TEMPLATE_NAME "IOT controller ESP32"
 #define BLYNK_AUTH_TOKEN "sglbMgWeSFAvnxRg4UTUKUMTBSHrrY_t"
-// Your WiFi credentials.
-// Set password to "" for open networks.
+// Thông tin WiFi của bạn.
+// Đặt mật khẩu là "" để sử dụng mạng mở.
 char ssid[] = "P2408";
 char pass[] = "244466666";
 
@@ -21,19 +21,19 @@ char pass[] = "244466666";
 using namespace ace_button;
 Preferences pref;
 
-#define DHTPIN            23 //D23  pin connected with DHT
-// Uncomment whatever type you're using!
+#define DHTPIN            23 //D23   chân kết nối với DHT
+
 #define DHTTYPE DHT11     // DHT 11
 //#define DHTTYPE DHT22   // DHT 22, AM2302, AM2321
-//#define DHTTYPE DHT21   // DHT 21, AM2301
 
-#define SCREEN_WIDTH 128 // OLED display width, in pixels
-#define SCREEN_HEIGHT 64 // OLED display height, in pixels
-#define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
-#define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
+
+#define SCREEN_WIDTH 128 // Chiều rộng màn hình OLED, tính bằng pixel
+#define SCREEN_HEIGHT 64 // Chiều cao màn hình OLED, tính bằng pixel
+#define OLED_RESET     -1 // Chân reset # (hoặc -1 nếu chia sẻ chân reset của Arduino)
+#define SCREEN_ADDRESS 0x3C ///<  Xem tài liệu để biết Địa chỉ; 0x3D cho 128x64, 0x3C cho 128x32
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-// Setpoint and setHumi values (in degrees Celsius)
+// Giá trị Setpoint và setHumi (đơn vị độ Celsius)
 float setTemp = 0;
 float setHumi = 0;
 float currentTemp = 0;
@@ -41,7 +41,7 @@ float currentHumi = 0;
 
 
 
-// define the GPIO connected with Relays and Buttons
+// Định nghĩa GPIO kết nối với Relays và Buttons
 #define RelayPin1 18  //D18
 #define RelayPin2 19  //D19
 
@@ -51,7 +51,7 @@ float currentHumi = 0;
 
 #define wifiLed   2   //D2
 
-//Change the virtual pins according the rooms
+// Thay đổi các virtual pin theo blynk
 #define VPIN_Text           V0
 #define VPIN_Mode           V1
 #define VPIN_currentTemp    V2
@@ -61,10 +61,10 @@ float currentHumi = 0;
 #define VPIN_Heater         V6
 #define VPIN_Humidifier     V7
 
-// Relay and Mode State
-bool heaterState = LOW; //Define integer to remember the toggle state for heater
-bool humidifierState = LOW; //Define integer to remember the toggle state for Humidifier
-bool modeState = LOW; //Define integer to remember the mode
+// Trạng thái Relays và Mode
+bool heaterState = LOW; //Định nghĩa biến để ghi nhớ trạng thái chuyển đổi cho bơi lạnh
+bool humidifierState = LOW; //Định nghĩa biến để ghi nhớ trạng thái chuyển đổi cho Bơi ẩm
+bool modeState = LOW; //Định nghĩa biến để ghi nhớ mode
 
 int wifiFlag = 0;
 
@@ -86,7 +86,7 @@ void handleEvent3(AceButton*, uint8_t, uint8_t);
 BlynkTimer timer;
 DHT dht(DHTPIN, DHTTYPE);
 
-// When App button is pushed - switch the state
+// Khi nút App được nhấn - chuyển trạng thái
 
 BLYNK_WRITE(VPIN_Heater) {
   heaterState = param.asInt();
@@ -115,7 +115,7 @@ BLYNK_WRITE(VPIN_setHumi) {
   pref.putBool("Humidity", setHumi);
 }
 
-void checkBlynkStatus() { // called every 2 seconds by SimpleTimer
+void checkBlynkStatus() { // được gọi  sau 2 giây bởi Simpletimer
 
   bool isconnected = Blynk.connected();
   if (isconnected == false) {
@@ -140,7 +140,7 @@ void checkBlynkStatus() { // called every 2 seconds by SimpleTimer
 }
 
 BLYNK_CONNECTED() {
-  // update the latest state to the server
+// Cập nhật trạng thái mới nhất lên server
   Blynk.virtualWrite(VPIN_Text, "IoT Temperature Controller with ESP32");
   Blynk.virtualWrite(VPIN_Mode, modeState);
   Blynk.syncVirtual(VPIN_currentTemp);
@@ -155,7 +155,7 @@ BLYNK_CONNECTED() {
 void setup()
 {
   Serial.begin(115200);
-  //Open namespace in read-write mode
+// Cập nhật trạng thái 
   pref.begin("Relay_State", false);
 
   pinMode(RelayPin1, OUTPUT);
@@ -166,20 +166,22 @@ void setup()
   pinMode(ButtonPin2, INPUT_PULLUP);
   pinMode(ButtonPin3, INPUT_PULLUP);
 
-  // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
+  
+// SSD1306_SWITCHCAPVCC = tạo điện áp màn hình từ 3.3V nội bộ
   if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
     Serial.println(F("SSD1306 allocation failed"));
-    for (;;); // Don't proceed, loop forever
+    for (;;); // Không tiếp tục, lặp vô hạn
   }
   display.clearDisplay();
   display.setTextColor(SSD1306_WHITE);
   display.display();
 
-  //During Starting all Relays should TURN OFF
+// Trong quá trình khởi động, tất cả các relay nên TẮT
   digitalWrite(RelayPin1, !heaterState);
   digitalWrite(RelayPin2, !humidifierState);
 
-  dht.begin();    // Enabling DHT sensor
+  dht.begin();    
+// Kích hoạt cảm biến DHT
   digitalWrite(wifiLed, LOW);
 
   config1.setEventHandler(button1Handler);
@@ -192,12 +194,12 @@ void setup()
 
   //Blynk.begin(auth, ssid, pass);
   WiFi.begin(ssid, pass);
-  timer.setInterval(2000L, checkBlynkStatus); // check if Blynk server is connected every 2 seconds
-  timer.setInterval(1000L, sendSensor); // Sending Sensor Data to Blynk Cloud every 1 second
+  timer.setInterval(2000L, checkBlynkStatus); // Kiểm tra xem máy chủ Blynk đã kết nối mỗi 2 giây
+  timer.setInterval(1000L, sendSensor); // Gửi dữ liệu cảm biến đến Đám mây Blynk mỗi 1 giây
   Blynk.config(auth);
   delay(1000);
 
-  getRelayState(); // Get the last state of Relays and Set values of Temp & Humidity
+  getRelayState(); // Lấy trạng thái cuối cùng của Relay và Thiết lập giá trị của Nhiệt độ & Độ ẩm
 
   Blynk.virtualWrite(VPIN_Heater, heaterState);
   Blynk.virtualWrite(VPIN_Humidifier, humidifierState);
@@ -219,8 +221,8 @@ void readSensor() {
 void sendSensor()
 {
   readSensor();
-  // You can send any value at any time.
-  // Please don't send more that 10 values per second.
+// Bạn có thể gửi bất kỳ giá trị nào vào bất kỳ thời điểm nào.
+// Vui lòng không gửi nhiều hơn 10 giá trị mỗi giây.
   Blynk.virtualWrite(VPIN_Text, "IoT Temperature Controller");
   Blynk.virtualWrite(VPIN_currentTemp, currentTemp);
   Blynk.virtualWrite(VPIN_currentHumi, currentHumi);
